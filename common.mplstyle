@@ -1,0 +1,7 @@
+font.size:    9.0
+lines.linewidth : 1
+axes.linewidth:     0.8
+axes.spines.top:    False
+axes.spines.right:  False
+legend.frameon:       True
+grid.linestyle: :

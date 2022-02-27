@@ -4,9 +4,12 @@ PYTHON = py -3.8
 
 # inputs
 
-#ROADS = data/hackakl/Roads/roads-11000.shp
-DEMTILE_DIR = data/LINZ/lds-auckland-lidar-1m-dem-2013-big
-COAST = data/LINZ/nz-coastlines-and-islands-polygons-topo-150k/nz-coastlines-and-islands-polygons-topo-150k.shp
+DATA_DIR=data
+
+#ROADS = $(DATA_DIR)/hackakl/Roads/roads-11000.shp
+DEMTILE_DIR = $(DATA_DIR)/LINZ/lds-auckland-lidar-1m-dem-2013-big
+COAST = $(DATA_DIR)/LINZ/nz-coastlines-and-islands-polygons-topo-150k/nz-coastlines-and-islands-polygons-topo-150k.shp
+PROFILE = bike.ini
 
 # outputs
 
@@ -25,8 +28,8 @@ miseryindex: $(MI)
 water: $(WATER)
 elevation: $(ROAD_ELEVATION)
 
-$(MI) :
-	$(PYTHON) miseryindex.py -o $@
+$(MI) : $(PROFILE)
+	$(PYTHON) miseryindex.py $< -o $@
 
 #$(ROAD_ELEVATION) : $(ROADS)
 #	$(PYTHON) make-elevation.py $< $(DEMTILE_DIR) -o $@ $(BBOX)

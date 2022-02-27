@@ -112,7 +112,7 @@ print("written " + args.output)
 # preview the map data:
 
 fig, ax = plt.subplots()
-ax.imshow(img, extent=bbox_img.xxyy(), cmap=our_cm)
+ax.imshow(img, extent=bbox_img.xxyy(), cmap=our_cm, vmin=0, vmax=1.4)
 roads.plot(ax=ax, column='slope', linewidth=2, cmap='turbo', vmax=0.20)
 if args.water:
     water.plot(ax=ax, linewidth=0.5, color=(0.7, 0.9, 1), edgecolor=(0.2, 0.5, 0.8))

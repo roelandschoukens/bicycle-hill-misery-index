@@ -1,33 +1,22 @@
 import matplotlib.pyplot as plt
 import numpy as np
-from matplotlib.colors import LinearSegmentedColormap
+from matplotlib.colors import ListedColormap
 
 """
 Color map used to preview map data.
 """
 
-colmap = [
-    (0, 255, 100),
-    (80, 255, 120),
-    (150, 255, 160),
-    (220, 255, 180),
-    (255, 248, 200),
-    (255, 241, 160),
-    (255, 220, 130),
-    (255, 200,  90),
-    (255, 180,  45),
-    (255, 140,  45),
-    (255, 110,  20),
-    (255, 80,  60),
-]
+colmap = np.array([
+    (195, 221, 233),
+    (226, 239, 212),
+    (255, 255, 191),
+    (255, 229, 172),
+    (255, 204, 152),
+    (247, 160, 165),
+    (239, 114, 179),
+]) / 255
 
-X = np.linspace(0, 1, len(colmap))
-cdata = dict(
-    red=  [(x, y[0] / 255, y[0] / 255) for x, y in zip(X, colmap)],
-    green=[(x, y[1] / 255, y[1] / 255) for x, y in zip(X, colmap)],
-    blue= [(x, y[2] / 255, y[2] / 255) for x, y in zip(X, colmap)])
-
-our_cm = LinearSegmentedColormap('map-height', cdata)
+our_cm = ListedColormap(colmap, name='map-height')
 
 
 if __name__ == '__main__':

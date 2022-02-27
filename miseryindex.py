@@ -1,4 +1,5 @@
 import argparse
+import configparser
 import json
 
 import numpy as np
@@ -9,24 +10,31 @@ plt.style.use('seaborn-white')
 plt.style.use('common.mplstyle')
 
 parser = argparse.ArgumentParser(description="Calculate misery index in terms of slope.")
+parser.add_argument("profile", metavar='PROFILE.INI', help="File containing our assumptions", default='bike.ini')
 parser.add_argument("--graph", metavar='SLOPE', help="Make a plot for a given slope, write no output. Slope is given as a percentage", type=float)
 parser.add_argument("--power", action='store_true', help="Plot power instead of required traction force")
 parser.add_argument("-o", "--output", metavar='DATA.json', help="Set output file", default='misery-index.json')
 args = parser.parse_args()
 
-# input assumptions:
+config = configparser.ConfigParser()
+config.read(args.profile, encoding='utf-8')
+cfg_main = config['main']
 
-WALK_PENALTY = 10 # W for every km/h
-HALF_RHO_Cd_A2 = 0.35 # ½ ρ Cd A²
-Crr = 0.005
-M = 85
+ride_v_table = []
+ride_P_table = []
+
+for k, v in config['ride-profile'].items():
+    ride_v_table.append(float(k))
+    ride_P_table.append(float(v))
+
+# ensure v/P curve intersects 0
+ride_v_table.append(ride_v_table[-1] + 0.1)
+ride_P_table.append(-0.01)
+
+M = float(cfg_main['m'])
+Crr = float(cfg_main['Crr'])
+half_rho_cd_a2 = float(cfg_main['half-rho-cd-a2'])
 G = 9.81
-
-RIDE_MIN_SPEED = 6.5
-RIDE_MAX_SPEED = 30
-RIDE_SPEED_TAB = [ RIDE_MIN_SPEED, 10, 30, RIDE_MAX_SPEED + 0.1]
-RIDE_POWER_TAB =  [         160.0, 80, 20, -.01]
-
 
 def cycling_power(speed, slope, wind):
     """ how much power do we need in this situation
@@ -38,20 +46,21 @@ def cycling_power(speed, slope, wind):
     All speeds in km/h
     
     Returns power in watts"""
-    
     v = speed / 3.6
     vRel = (speed + wind) / 3.6
     p = M * G * (Crr + slope) * v + \
-            HALF_RHO_Cd_A2 * vRel * abs(vRel) * v
+            half_rho_cd_a2 * vRel * abs(vRel) * v
     return np.maximum(p, 0)
 
-v = np.arange(0.1, RIDE_MAX_SPEED + 0.101, 0.1)
+v = np.arange(0.1, ride_v_table[-1] + 0.101, 0.1)
 
+# walking profile
 v_walk = np.arange(2, 6, 0.1)
 pwr_walk = np.interp(v_walk, [2, 6], [140, 10])
+walk_penalty = float(cfg_main['walk-penalty'])
 
-v_ride = np.arange(RIDE_MIN_SPEED, RIDE_MAX_SPEED + 0.101, 0.1)
-pwr_ride = np.interp(v_ride, RIDE_SPEED_TAB, RIDE_POWER_TAB)
+v_ride = np.arange(ride_v_table[0], ride_v_table[-1] + 0.101, 0.1)
+pwr_ride = np.interp(v_ride, ride_v_table, ride_P_table)
 
 pwr_intersect = np.maximum(
     np.interp(v, v_ride, pwr_ride, left=0),
@@ -77,7 +86,7 @@ def calc_power_use(slope, show_plot=False):
         idx = np.nonzero(np.diff(np.sign(pwr_intersect - p)))[0]
         j = idx[-1]
         p_speed[i] = v[j]
-        p_power[i] = p[j] + WALK_PENALTY * v[j] * (v[j] < RIDE_MIN_SPEED)
+        p_power[i] = p[j] + walk_penalty * v[j] * (v[j] < ride_v_table[0])
 
     energy = p_power / p_speed
     avg = np.average(energy)

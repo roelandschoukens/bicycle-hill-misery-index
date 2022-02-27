@@ -30,6 +30,10 @@ You definitely need this data (the linked data is for Auckland, New Zealand):
    hackaton in 2014. This was very detailed but it is no longer available.
    Maybe I’ll use openStreetMap data in the future. `make-elevation.py` will have to be updated to read this data.
 
+   For the time being the `roads-elevation.geojson` is included in the repository. The geometry data in this file originally came from
+   Auckland Transport and is licensed under [Creative Commons Attribution 3.0 New Zealand](https://hackakl.koordinates.com/license/attribution-3-0-new-zealand/).
+   The elevation comes from the 1m DEM.
+
 To make a nice map you’ll probably want some topographic data. [LINZ](https://data.linz.govt.nz/) publishes topographic
 maps, and all the underlying data to generate these maps. You’d probably get:
 
